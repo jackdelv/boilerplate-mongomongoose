@@ -8,7 +8,7 @@ const personSchema = new Schema({
 	age: Number
 });
 
-let Person;
+const Person =  mongoose.model('Person', personSchema);
 
 const createAndSavePerson = (done) => {
   done(null /*, data*/);
