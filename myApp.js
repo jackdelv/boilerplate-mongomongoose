@@ -1,6 +1,5 @@
 require('dotenv').config();
 var mongoose = require('mongoose');
-
 mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const personSchema = new mongoose.Schema({
@@ -31,7 +30,7 @@ var findPeopleByName = (personName, done) => {
   Person.find({name: personName}, function(err, data) {
     if(err) return console.error(err);
     done(null, data);
-  })
+  });
 };
 
 var findOneByFood = (food, done) => {
@@ -48,32 +47,47 @@ var findPersonById = (personId, done) => {
   });
 };
 
-const findEditThenSave = (personId, done) => {
+var findEditThenSave = (personId, done) => {
   const foodToAdd = "hamburger";
-
-  done(null /*, data*/);
+  Person.findById(personId, function(err, person) {
+    person.favoriteFoods.push(foodToAdd);
+    person.save(function(err, data) {
+      if (err) return console.error(err);
+      done(null, data);
+    });
+  });
 };
 
-const findAndUpdate = (personName, done) => {
+var findAndUpdate = (personName, done) => {
   const ageToSet = 20;
-
-  done(null /*, data*/);
+  Person.findOneAndUpdate({name: personName}, {age: ageToSet}, {new: true}, function(err, person) {
+    if (err) return console.error(err);
+    done(null, person);
+  });
 };
 
-const removeById = (personId, done) => {
-  done(null /*, data*/);
+var removeById = (personId, done) => {
+  Person.findByIdAndRemove(personId, function(err, person) {
+    if (err) return console.error(err);
+    done(null, person);
+  });
 };
 
-const removeManyPeople = (done) => {
+var removeManyPeople = (done) => {
   const nameToRemove = "Mary";
-
-  done(null /*, data*/);
+  Person.remove({name: nameToRemove}, function(err, data) {
+    if (err) return console.error(err);
+    done(null, data);
+  });
 };
 
-const queryChain = (done) => {
+var queryChain = (done) => {
   const foodToSearch = "burrito";
-
-  done(null /*, data*/);
+  Person.find({favoriteFoods: foodToSearch}).sort({name: "asc"}).limit(2).select("-age").exec(
+    function(err, data) {
+      if (err) return console.error(err);
+      done(err, data);
+    });
 };
 
 /** **Well Done !!**
